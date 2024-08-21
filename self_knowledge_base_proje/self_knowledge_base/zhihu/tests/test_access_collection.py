@@ -14,6 +14,10 @@ import os.path  # 可以对目录的路径进行操作
 from fake_useragent import \
     UserAgent  # 用来随机生成UA，注意：使用该有可能模块会报错；fake-useragent Maximum amount of retries reached，解决方法见：https://www.freesion.com/article/37461287842/
 
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+
 if __name__ == '__main__':  # 当模块被直接运行时，以下代码块将被运行，当模块是被导入时，代码块不被运行
     # inputUrl = input('请输入您的zhihu_collection的url,如：https://www.zhihu.com/collection/42728421：')
     inputUrl = 'https://www.zhihu.com/collection/695507497'
@@ -23,16 +27,21 @@ if __name__ == '__main__':  # 当模块被直接运行时，以下代码块将�
     zhihu_video_collection_folder = "zhihu_video_collection"
 
     current_path = os.getcwd()  # 获取当前路径
-    if os.path.exists(current_path + '\zhihu_collection') == True:  # 检查是否路径中存在zhihu_collection这个目录
+    logging.debug(f"current path is {current_path}")
+    collection_path = os.path.join(current_path, zhihu_collection_folder)
+    collection_video_path = os.path.join(current_path, zhihu_video_collection_folder)
+    if os.path.exists(collection_path):  # 检查是否路径中存在zhihu_collection这个目录
+        # logging.debug(f"folder exists : {current_path + '\zhihu_collection'}")
         pass
     else:
-        os.mkdir(current_path + '\zhihu_collection')  # 不存在则创建一个
+        os.mkdir(collection_path)  # 不存在则创建一个
 
-    if os.path.exists(current_path + '\zhihu_video_collection') == True:  # 检查是否路径中存在zhihu_video_collection这个目录
+    if os.path.exists(collection_video_path):  # 检查是否路径中存在zhihu_video_collection这个目录
         pass
     else:
-        os.mkdir(current_path + '\zhihu_video_collection')  # 不存在则创建一个
+        os.mkdir(collection_video_path)  # 不存在则创建一个
     # print(current_path)
+    logging.debug(f"finished directory establishment")
 
     headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36 Edg/92.0.902.55'
@@ -63,8 +72,8 @@ if __name__ == '__main__':  # 当模块被直接运行时，以下代码块将�
                    {'HTTP': '113.121.38.196:9999'},
                    {'HTTP': '112.91.75.97:9999'},
                    {'HTTP': '175.42.68.172:9999'},
-                   {'HTTP': '223.243.245.35:9999'}] # 代理IP列表
-        proxy = random.choice(proxies) # 随机选一个代理IP
+                   {'HTTP': '223.243.245.35:9999'}]  # 代理IP列表
+        proxy = random.choice(proxies)  # 随机选一个代理IP
         page_data = requests.get(url=url, params=params, headers=randomHeaders, proxies=proxy)  # 向目标服务器发送请求
         page_data.close()  # 关闭请求
         page_data.encoding = 'utf-8'  # page_data的编码格式是设置为'utf-8'
@@ -94,7 +103,7 @@ if __name__ == '__main__':  # 当模块被直接运行时，以下代码块将�
                 page_title = page_json['data'][0]['content']['title']
                 # print(page_title)
 
-                video = requests.get(url=videoUrl, headers=headers,proxies=proxy)
+                video = requests.get(url=videoUrl, headers=headers, proxies=proxy)
                 # print(video)
                 resHeaders = video.headers
                 Video_Content_Type = resHeaders['Content-Type']
@@ -141,7 +150,8 @@ if __name__ == '__main__':  # 当模块被直接运行时，以下代码块将�
         page_html = f'<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>{page_title}</title></head><body>{page_content}</body></html>'  # 这里是写一个HTML格式的文件
         # print(type(page_title))
         soup = BeautifulSoup(page_html, 'lxml')  # 实例化一个BeautifulSoup对象
-        with open(f'./zhihu_collection/{filename}.html', 'w', encoding='utf-8') as htmlfp:  # 创建一个名称为filename的html文件，起个别名为htmlfp
+        with open(f'./zhihu_collection/{filename}.html', 'w',
+                  encoding='utf-8') as htmlfp:  # 创建一个名称为filename的html文件，起个别名为htmlfp
             htmlfp.write(page_html)  # 将page_html写入htmlfp中
 
         imgs = soup.find_all('img')  # 找出soup当中所有的img标签，没记错的话返回的是个列表
