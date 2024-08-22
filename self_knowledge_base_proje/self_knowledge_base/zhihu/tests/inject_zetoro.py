@@ -78,15 +78,18 @@ websiteType = "zhihu"
 items = []
 logging.info(f"started getting items")
 for i, collection in enumerate(collection_list):
-    logging.debug(f"{i}th collection")
+
     content = collection["content"]
     url = content['url']
-
+    logging.debug(f"{i}th collection, {content['type']}")
     if content["type"] == "answer":
         title = content["question"]["title"]
         abs = content["excerpt"]
     elif content["type"] == "article":
         title = content["title"]
+        abs = content["excerpt_title"]
+    elif content["type"] == "pin":
+        title = 'pin'
         abs = content["excerpt_title"]
     else:
         title = content["title"]
